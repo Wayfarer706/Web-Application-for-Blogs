@@ -8,8 +8,36 @@ dependencies = [
     "aiosqlite>=0.22.1",
     "fastapi[standard]>=0.139.0",
     "greenlet>=3.5.3",
+    "pillow>=12.3.0",
     "pwdlib[argon2]>=0.3.0",
     "pydantic-settings>=2.14.2",
     "pyjwt[crypto]>=2.13.0",
     "sqlalchemy>=2.0.51",
 ]
+[tool.ruff]
+# Standardize line length to 88 characters 
+line-length = 88
+
+# Explicitly target Python 3.14 to ensure modern syntax rules apply
+target-version = "py314"
+
+[tool.ruff.lint]
+# Select exactly which rule sets Ruff should enforce
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes (catches unused variables and imports)
+    "I",   # isort (automatically sorts and groups all imports)
+    "B",   # flake8-bugbear (catches common logic bugs and pitfalls)
+    "UP",  # pyupgrade (automatically modernizes old Python syntax)
+    "SIM", # flake8-simplify (suggests cleaner ways to write if-statements and loops)
+]
+
+# You can add specific rule codes here if you want Ruff to ignore them
+ignore = []
+
+[tool.ruff.format]
+# Enforce standard double quotes for all strings
+quote-style = "double"
+# Indent with spaces, not tabs
+indent-style = "space"

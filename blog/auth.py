@@ -1,14 +1,16 @@
 from datetime import UTC, datetime, timedelta
-from typing import Any, Annotated
+from typing import Annotated, Any
+
 import jwt
-from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from pwdlib import PasswordHash
-from config import settings
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from database import get_db
+
 import models
+from config import settings
+from database import get_db
 
 password_hash = PasswordHash.recommended()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/users/token")
@@ -73,7 +75,7 @@ async def get_current_user(
     try:
         user_id_int = int(user_id)
     except TypeError, ValueError:
-        raise HTTPException(
+        raise HTTPException(  # noqa: B904
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
             headers={"WWW-Authenticate": "Bearer"},
