@@ -53,13 +53,12 @@ class PostBase(BaseModel):
 
 
 class PostCreate(PostBase):
-    user_id: int
+    pass
 
 
 class PostUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=100)
     content: str | None = Field(default=None, min_length=1)
-    user_id: int | None = Field(default=None)
 
 
 class PostResponse(PostBase):
@@ -67,6 +66,5 @@ class PostResponse(PostBase):
 
     id: int
     user_id: int
-    created_at: datetime
-    updated_at: datetime
+    date_posted: datetime
     author: UserPublic
