@@ -191,15 +191,12 @@ async def reset_password(
     reset_token = result.scalars().first()
 
     if not reset_token:
-        print("Condition 1")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid or expired reset token",
         )
 
-    if reset_token.expires_at.replace(tzinfo=UTC) < datetime.now(UTC):
-        print("Condition 2")
-
+    if reset_token.expires_at < datetime.now(UTC):
         await db.delete(reset_token)
         await db.commit()
         raise HTTPException(
@@ -213,8 +210,6 @@ async def reset_password(
     user = result.scalars().first()
 
     if not user:
-        print("Condition 3")
-
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid or expired reset token",
