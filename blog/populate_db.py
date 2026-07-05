@@ -6,8 +6,9 @@ import httpx
 from sqlalchemy import delete, select, update
 
 import models
+from config import settings
 from database import AsyncSessionLocal, engine
-from image_utils import PROFILE_PICS_DIR
+from image_utils import _get_s3_client  # pyright: ignore[reportPrivateUsage]
 from main import app
 
 
@@ -250,11 +251,20 @@ POST_44: PostData = {
 
 
 async def clear_existing_data() -> None:
-    if PROFILE_PICS_DIR.exists():
-        for file in PROFILE_PICS_DIR.iterdir():
-            if file.is_file() and file.name != ".gitkeep":
-                file.unlink()
-        print(f"Deleted profile pictures from {PROFILE_PICS_DIR}")
+    # Delete profile pictures from S3 (need DB records to know which files)
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(
+            select(models.User.image_file).where(models.User.image_file.is_not(None)),
+        )
+        filenames = result.scalars().all()
+
+    if filenames:
+        s3 = _get_s3_client()
+        s3.delete_objects(
+            Bucket=settings.s3_bucket_name,
+            Delete={"Objects": [{"Key": f"profile_pics/{f}"} for f in filenames]},
+        )
+        print(f"Deleted {len(filenames)} images from S3")
 
     # Clear database tables (order respects foreign keys)
     async with AsyncSessionLocal() as db:
@@ -275,12 +285,14 @@ async def update_post_dates() -> None:
         if not posts:
             return
 
+        # First post (POST_44) is the oldest - ~90 days ago
         await db.execute(
             update(models.Post)
             .where(models.Post.id == posts[0].id)
             .values(date_posted=now - timedelta(days=90)),
         )
 
+        # Remaining posts: each ~1.5 days newer than previous
         for i, post in enumerate(posts[1:], start=1):
             days_ago = (len(posts) - i) * 1.5
             hours_offset = (i * 7) % 24
@@ -342,7 +354,7 @@ async def create_users(client: httpx.AsyncClient) -> list[PopulatedUser]:
                 headers={"Authorization": f"Bearer {token}"},
             )
             response.raise_for_status()
-            print(f"    Uploaded dynamic avatar for: {user['username']}")
+            print(f"    Uploaded dynamic avatar to S3 for: {user['username']}")
 
         users.append({"id": user["id"], "username": user["username"], "token": token})
 
@@ -403,7 +415,7 @@ async def populate() -> None:
     print("\nDone!")
     print(f"  {len(USERS)} users")
     print(f"  {len(POSTS) + 1} posts")
-    print("  Avatars generated dynamically")
+    print("  Avatars generated dynamically and uploaded to S3")
 
 
 if __name__ == "__main__":
