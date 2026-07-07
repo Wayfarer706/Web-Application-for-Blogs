@@ -1,0 +1,165 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --color-bg-body: #ffffff;
+  --color-bg-content: #ffffff;
+  --color-text-primary: #111111;
+  --color-text-secondary: #666666;
+  --color-border: #eaeaea;
+  --color-border-hover: #cccccc;
+  --color-brand: #000000;
+  --color-brand-hover: #333333;
+  --color-brand-text: #ffffff;
+}
+
+[data-bs-theme="dark"] {
+  --color-bg-body: #111111;
+  --color-bg-content: #111111;
+  --color-text-primary: #ededed;
+  --color-text-secondary: #a1a1aa;
+  --color-border: #333333;
+  --color-border-hover: #4d4d4d;
+  --color-brand: #ffffff;
+  --color-brand-hover: #e5e5e5;
+  --color-brand-text: #000000;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--color-bg-body) !important;
+  color: var(--color-text-primary) !important;
+  line-height: 1.6;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+a {
+  color: var(--color-brand);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+a:hover {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+
+/* Sections */
+.content-section {
+  background-color: var(--color-bg-content);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+  transition: border-color 0.2s ease;
+  border-radius: 8px !important;
+}
+
+.content-section:hover {
+  border-color: var(--color-border-hover);
+}
+
+/* Navbar */
+.navbar {
+  background-color: var(--color-bg-content) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+}
+
+.navbar .navbar-brand {
+  color: var(--color-text-primary) !important;
+}
+.navbar .nav-link {
+  color: var(--color-text-secondary) !important;
+}
+
+.navbar .nav-link:hover {
+  color: var(--color-text-primary) !important;
+}
+
+/* Buttons */
+.btn {
+  font-weight: 500;
+  border-radius: 6px !important;
+  padding: 0.5rem 1rem;
+  transition: all 0.15s ease;
+  box-shadow: none !important;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-primary {
+  background-color: var(--color-brand);
+  color: var(--color-brand-text) !important;
+  border: 1px solid var(--color-brand);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background-color: var(--color-brand-hover);
+  border-color: var(--color-brand-hover);
+  color: var(--color-brand-text) !important;
+}
+
+.btn-outline-primary {
+  background-color: transparent;
+  color: var(--color-brand) !important;
+  border: 1px solid var(--color-border);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--color-bg-body);
+  border-color: var(--color-brand);
+  color: var(--color-brand) !important;
+}
+
+.btn-outline-secondary {
+  background-color: transparent;
+  color: var(--color-text-secondary) !important;
+  border: 1px solid var(--color-border);
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--color-bg-body);
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-border-hover);
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  border: 1px solid #dc3545;
+  color: #fff !important;
+}
+
+.btn-danger:hover {
+  background-color: #b02a37;
+  border-color: #a52834;
+}
+
+/* Forms */
+.form-control, .form-select {
+  background-color: var(--color-bg-body) !important;
+  color: var(--color-text-primary) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  box-shadow: none !important;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--color-brand) !important;
+}
+
+/* Avatar/Images */
+img.rounded-circle {
+  border-color: var(--color-border) !important;
+}
+
+/* Remove default link blue color */
+.text-primary {
+  color: var(--color-brand) !important;
+}
