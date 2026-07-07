@@ -29,7 +29,9 @@ class PostRepository:
         result = await self.db.execute(
             select(models.Post).where(models.Post.id == post_id),
         )
-        return result.scalars().first()
+        post = result.scalars().first()
+
+        return post
 
     async def get_post_with_author(self, post_id: int) -> models.Post | None:
         result = await self.db.execute(
@@ -37,7 +39,9 @@ class PostRepository:
             .options(selectinload(models.Post.author))
             .where(models.Post.id == post_id)
         )
-        return result.scalars().first()
+        post = result.scalars().first()
+
+        return post
 
     async def get_paginated(self, skip: int, limit: int) -> Sequence[models.Post]:
         result = await self.db.execute(
@@ -47,7 +51,9 @@ class PostRepository:
             .offset(skip)
             .limit(limit),
         )
-        return result.scalars().all()
+        posts = result.scalars().all()
+
+        return posts
 
     async def update(
         self, post: models.Post, update_data: dict[str, Any]
@@ -67,3 +73,28 @@ class PostRepository:
         total = count_result.scalar() or 0
 
         return total
+
+    async def count_user_posts(self, user_id: int) -> int:
+        count_result = await self.db.execute(
+            select(func.count())
+            .select_from(models.Post)
+            .where(models.Post.user_id == user_id)
+        )
+        total = count_result.scalar() or 0
+
+        return total
+
+    async def get_user_posts_paginated(
+        self, user_id: int, skip: int, limit: int
+    ) -> Sequence[models.Post]:
+        result = await self.db.execute(
+            select(models.Post)
+            .options(selectinload(models.Post.author))
+            .where(models.Post.user_id == user_id)
+            .order_by(models.Post.date_posted.desc())
+            .offset(skip)
+            .limit(limit),
+        )
+        posts = result.scalars().all()
+
+        return posts
