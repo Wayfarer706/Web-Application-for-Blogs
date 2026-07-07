@@ -3,9 +3,10 @@ from io import BytesIO
 from typing import TYPE_CHECKING
 
 import boto3
-from backend.config import settings
 from PIL import Image, ImageOps
 from starlette.concurrency import run_in_threadpool
+
+from config import settings
 
 if TYPE_CHECKING:
     from mypy_boto3_s3 import S3Client

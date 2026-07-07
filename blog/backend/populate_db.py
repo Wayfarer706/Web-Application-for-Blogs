@@ -2,13 +2,14 @@ import asyncio
 from datetime import UTC, datetime, timedelta
 from typing import TypedDict
 
-import backend.models as models
 import httpx
-from backend.config import settings
-from backend.database import AsyncSessionLocal, engine
-from backend.image_utils import _get_s3_client  # pyright: ignore[reportPrivateUsage]
-from backend.main import app
 from sqlalchemy import delete, select, update
+
+import models as models
+from config import settings
+from database import AsyncSessionLocal, engine
+from image_utils import _get_s3_client  # pyright: ignore[reportPrivateUsage]
+from main import app
 
 
 class PopulatedUser(TypedDict):

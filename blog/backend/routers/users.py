@@ -1,35 +1,6 @@
 from datetime import UTC, datetime, timedelta
 from typing import Annotated
 
-import backend.models as models
-from backend.auth import (
-    CurrentUser,
-    create_access_token,
-    generate_reset_token,
-    hash_password,
-    hash_reset_token,
-    verify_password,
-)
-from backend.config import settings
-from backend.database import get_db
-from backend.email_utils import send_password_reset_email
-from backend.image_utils import (
-    delete_profile_image,
-    process_profile_image,
-    upload_profile_image,
-)
-from backend.schemas import (
-    ChangePasswordRequest,
-    ForgotPasswordRequest,
-    PaginatedPostsResponse,
-    PostResponse,
-    ResetPasswordRequest,
-    Token,
-    UserCreate,
-    UserPrivate,
-    UserPublic,
-    UserUpdate,
-)
 from botocore.exceptions import ClientError
 from fastapi import (
     APIRouter,
@@ -47,6 +18,36 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from starlette.concurrency import run_in_threadpool
+
+import models as models
+from auth import (
+    CurrentUser,
+    create_access_token,
+    generate_reset_token,
+    hash_password,
+    hash_reset_token,
+    verify_password,
+)
+from config import settings
+from database import get_db
+from email_utils import send_password_reset_email
+from image_utils import (
+    delete_profile_image,
+    process_profile_image,
+    upload_profile_image,
+)
+from schemas import (
+    ChangePasswordRequest,
+    ForgotPasswordRequest,
+    PaginatedPostsResponse,
+    PostResponse,
+    ResetPasswordRequest,
+    Token,
+    UserCreate,
+    UserPrivate,
+    UserPublic,
+    UserUpdate,
+)
 
 router = APIRouter()
 
