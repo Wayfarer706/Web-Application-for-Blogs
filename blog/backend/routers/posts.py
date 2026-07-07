@@ -1,14 +1,13 @@
 from typing import Annotated
 
+import backend.models as models
+from backend.auth import CurrentUser
+from backend.database import get_db
+from backend.schemas import PaginatedPostsResponse, PostCreate, PostResponse, PostUpdate
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-
-import models
-from auth import CurrentUser
-from database import get_db
-from schemas import PaginatedPostsResponse, PostCreate, PostResponse, PostUpdate
 
 router = APIRouter()
 
