@@ -10,9 +10,9 @@ from pwdlib import PasswordHash
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-import models as models
 from config import settings
 from database import get_db
+from models.user import User
 
 password_hash = PasswordHash.recommended()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/users/token")
@@ -73,7 +73,7 @@ def verify_access_token(token: str) -> str | None:
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Annotated[AsyncSession, Depends(get_db)],
-) -> models.User:
+) -> User:
     user_id = verify_access_token(token)
     if user_id is None:
         raise HTTPException(
@@ -92,7 +92,7 @@ async def get_current_user(
         )
 
     result = await db.execute(
-        select(models.User).where(models.User.id == user_id_int),
+        select(User).where(User.id == user_id_int),
     )
     user = result.scalars().first()
 
@@ -106,4 +106,4 @@ async def get_current_user(
     return user
 
 
-CurrentUser = Annotated[models.User, Depends(get_current_user)]
+CurrentUser = Annotated[User, Depends(get_current_user)]
