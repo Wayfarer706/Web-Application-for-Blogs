@@ -6,7 +6,6 @@ from fastapi.security import OAuth2PasswordRequestForm
 from PIL import UnidentifiedImageError
 from starlette.concurrency import run_in_threadpool
 
-import models as models
 from auth import (
     create_access_token,
     generate_reset_token,
@@ -21,6 +20,8 @@ from image_utils import (
     process_profile_image,
     upload_profile_image,
 )
+from models.password_reset_token import PasswordResetToken
+from models.user import User
 from repositories.auth_repository import AuthRepository
 from repositories.post_repository import PostRepository
 from repositories.user_repository import UserRepository
@@ -60,7 +61,7 @@ class UserService:
 
         return Token(access_token=access_token, token_type="bearer")
 
-    async def create_user(self, user: UserCreate) -> models.User:
+    async def create_user(self, user: UserCreate) -> User:
         result = await self.user_repo.get_by_username(user.username)
 
         if result:
@@ -78,7 +79,7 @@ class UserService:
 
         return await self.user_repo.create(user.username, user.email, user.password)
 
-    async def get_user(self, user_id: int) -> models.User:
+    async def get_user(self, user_id: int) -> User:
         user = await self.user_repo.get_by_id(user_id)
 
         if not user:
@@ -118,8 +119,8 @@ class UserService:
         self,
         user_id: int,
         user_update: UserUpdate,
-        current_user: models.User,
-    ) -> models.User:
+        current_user: User,
+    ) -> User:
         if user_id != current_user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -156,8 +157,8 @@ class UserService:
         return await self.user_repo.update(current_user, update_data)
 
     async def upload_profile_picture(
-        self, user_id: int, file: UploadFile, current_user: models.User
-    ) -> models.User:
+        self, user_id: int, file: UploadFile, current_user: User
+    ) -> User:
         if current_user.id != user_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -222,9 +223,7 @@ class UserService:
         if old_filename:
             await delete_profile_image(old_filename)
 
-    async def delete_user_picture(
-        self, user_id: int, current_user: models.User
-    ) -> models.User:
+    async def delete_user_picture(self, user_id: int, current_user: User) -> User:
         if current_user.id != user_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -283,7 +282,7 @@ class UserService:
 
     async def change_password(
         self,
-        user: models.User,
+        user: User,
         password_data: ChangePasswordRequest,
     ) -> dict[str, str]:
         if not verify_password(password_data.current_password, user.password_hash):
@@ -313,7 +312,7 @@ class UserService:
                 minutes=settings.reset_token_expire_minutes
             )
 
-            reset_token = models.PasswordResetToken(
+            reset_token = PasswordResetToken(
                 user_id=user.id,
                 token_hash=token_hash,
                 expires_at=expires_at,

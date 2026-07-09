@@ -5,15 +5,15 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-import models as models
+from models.post import Post
 
 
 class PostRepository:
     def __init__(self, db: AsyncSession) -> None:
         self.db = db
 
-    async def create(self, title: str, content: str, user_id: int) -> models.Post:
-        new_post = models.Post(title=title, content=content, user_id=user_id)
+    async def create(self, title: str, content: str, user_id: int) -> Post:
+        new_post = Post(title=title, content=content, user_id=user_id)
 
         self.db.add(new_post)
         await self.db.commit()
@@ -21,33 +21,31 @@ class PostRepository:
 
         return new_post
 
-    async def delete(self, post: models.Post) -> None:
+    async def delete(self, post: Post) -> None:
         await self.db.delete(post)
         await self.db.commit()
 
-    async def get_by_id(self, post_id: int) -> models.Post | None:
+    async def get_by_id(self, post_id: int) -> Post | None:
         result = await self.db.execute(
-            select(models.Post).where(models.Post.id == post_id),
+            select(Post).where(Post.id == post_id),
         )
         post = result.scalars().first()
 
         return post
 
-    async def get_post_with_author(self, post_id: int) -> models.Post | None:
+    async def get_post_with_author(self, post_id: int) -> Post | None:
         result = await self.db.execute(
-            select(models.Post)
-            .options(selectinload(models.Post.author))
-            .where(models.Post.id == post_id)
+            select(Post).options(selectinload(Post.author)).where(Post.id == post_id)
         )
         post = result.scalars().first()
 
         return post
 
-    async def get_paginated(self, skip: int, limit: int) -> Sequence[models.Post]:
+    async def get_paginated(self, skip: int, limit: int) -> Sequence[Post]:
         result = await self.db.execute(
-            select(models.Post)
-            .options(selectinload(models.Post.author))
-            .order_by(models.Post.date_posted.desc())
+            select(Post)
+            .options(selectinload(Post.author))
+            .order_by(Post.date_posted.desc())
             .offset(skip)
             .limit(limit),
         )
@@ -55,9 +53,7 @@ class PostRepository:
 
         return posts
 
-    async def update(
-        self, post: models.Post, update_data: dict[str, Any]
-    ) -> models.Post:
+    async def update(self, post: Post, update_data: dict[str, Any]) -> Post:
         for field, value in update_data.items():
             setattr(post, field, value)
 
@@ -67,18 +63,14 @@ class PostRepository:
         return post
 
     async def count(self) -> int:
-        count_result = await self.db.execute(
-            select(func.count()).select_from(models.Post)
-        )
+        count_result = await self.db.execute(select(func.count()).select_from(Post))
         total = count_result.scalar() or 0
 
         return total
 
     async def count_user_posts(self, user_id: int) -> int:
         count_result = await self.db.execute(
-            select(func.count())
-            .select_from(models.Post)
-            .where(models.Post.user_id == user_id)
+            select(func.count()).select_from(Post).where(Post.user_id == user_id)
         )
         total = count_result.scalar() or 0
 
@@ -86,12 +78,12 @@ class PostRepository:
 
     async def get_user_posts_paginated(
         self, user_id: int, skip: int, limit: int
-    ) -> Sequence[models.Post]:
+    ) -> Sequence[Post]:
         result = await self.db.execute(
-            select(models.Post)
-            .options(selectinload(models.Post.author))
-            .where(models.Post.user_id == user_id)
-            .order_by(models.Post.date_posted.desc())
+            select(Post)
+            .options(selectinload(Post.author))
+            .where(Post.user_id == user_id)
+            .order_by(Post.date_posted.desc())
             .offset(skip)
             .limit(limit),
         )

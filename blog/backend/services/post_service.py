@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status
 
-import models as models
+from models.post import Post
 from repositories.post_repository import PostRepository
 from schemas.posts import PaginatedPostsResponse, PostCreate, PostResponse, PostUpdate
 
@@ -9,12 +9,12 @@ class PostService:
     def __init__(self, post_repo: PostRepository) -> None:
         self.post_repo = post_repo
 
-    async def create_post(self, post_data: PostCreate, user_id: int) -> models.Post:
+    async def create_post(self, post_data: PostCreate, user_id: int) -> Post:
         return await self.post_repo.create(
             title=post_data.title, content=post_data.content, user_id=user_id
         )
 
-    async def get_post(self, post_id: int) -> models.Post:
+    async def get_post(self, post_id: int) -> Post:
         post = await self.post_repo.get_post_with_author(post_id)
 
         if not post:
@@ -41,7 +41,7 @@ class PostService:
 
     async def update_post_full(
         self, post_id: int, user_id: int, post_data: PostCreate
-    ) -> models.Post:
+    ) -> Post:
         post = await self._get_post_and_verify_owner(post_id, user_id)
         update_data = post_data.model_dump()
 
@@ -49,7 +49,7 @@ class PostService:
 
     async def update_post_partial(
         self, post_id: int, user_id: int, post_data: PostUpdate
-    ) -> models.Post:
+    ) -> Post:
         post = await self._get_post_and_verify_owner(post_id, user_id)
         update_data = post_data.model_dump(exclude_unset=True)
 
@@ -59,9 +59,7 @@ class PostService:
         post = await self._get_post_and_verify_owner(post_id, user_id)
         await self.post_repo.delete(post)
 
-    async def _get_post_and_verify_owner(
-        self, post_id: int, user_id: int
-    ) -> models.Post:
+    async def _get_post_and_verify_owner(self, post_id: int, user_id: int) -> Post:
         post = await self.post_repo.get_by_id(post_id)
 
         if not post:
