@@ -42,26 +42,25 @@ class PostService:
     async def update_post_full(
         self, post_id: int, user_id: int, post_data: PostCreate
     ) -> models.Post:
-        post = await self.post_repo.get_by_id(post_id)
-
-        if not post:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Post not found",
-            )
-
-        if post.user_id != user_id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Not authorized to update this post",
-            )
-
+        post = await self._get_post_and_verify_owner(post_id, user_id)
         update_data = post_data.model_dump()
 
         return await self.post_repo.update(post, update_data)
 
     async def update_post_partial(
         self, post_id: int, user_id: int, post_data: PostUpdate
+    ) -> models.Post:
+        post = await self._get_post_and_verify_owner(post_id, user_id)
+        update_data = post_data.model_dump(exclude_unset=True)
+
+        return await self.post_repo.update(post, update_data)
+
+    async def delete_post(self, post_id: int, user_id: int) -> None:
+        post = await self._get_post_and_verify_owner(post_id, user_id)
+        await self.post_repo.delete(post)
+
+    async def _get_post_and_verify_owner(
+        self, post_id: int, user_id: int
     ) -> models.Post:
         post = await self.post_repo.get_by_id(post_id)
 
@@ -74,26 +73,7 @@ class PostService:
         if post.user_id != user_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Not authorized to update this post",
+                detail="Not authorized to access this post",
             )
 
-        update_data = post_data.model_dump(exclude_unset=True)
-
-        return await self.post_repo.update(post, update_data)
-
-    async def delete_post(self, post_id: int, user_id: int) -> None:
-        post = await self.post_repo.get_by_id(post_id)
-
-        if not post:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Post not found",
-            )
-
-        if post.user_id != user_id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Not authorized to delete this post",
-            )
-
-        await self.post_repo.delete(post)
+        return post
