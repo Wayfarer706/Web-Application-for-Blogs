@@ -31,6 +31,16 @@ class Comment(Base):
         ForeignKey("posts.id"), nullable=False, index=True
     )
 
+    parent_id: Mapped[int | None] = mapped_column(ForeignKey("comments.id"), index=True)
+
+    parent: Mapped[Comment | None] = relationship(
+        back_populates="replies", remote_side="Comment.id"
+    )
+
     author: Mapped[User] = relationship(back_populates="comments")
 
     post: Mapped[Post] = relationship(back_populates="comments")
+
+    replies: Mapped[list[Comment]] = relationship(
+        back_populates="parent", cascade="all, delete-orphan"
+    )
