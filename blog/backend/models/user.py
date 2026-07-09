@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Enum as SQLEnum
 from sqlalchemy import Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -30,9 +29,9 @@ class User(Base):
         default=None,
     )
     role: Mapped[UserRole] = mapped_column(
-        SQLEnum(UserRole),
+        String(20),
         default=UserRole.USER,
-        server_default="user",
+        server_default=UserRole.USER.value,
         nullable=False,
     )
 

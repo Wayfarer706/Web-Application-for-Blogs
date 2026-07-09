@@ -11,7 +11,7 @@ from database import Base
 if TYPE_CHECKING:
     from .category import Category
     from .comment import Comment
-    from .tag import Tag, post_tag_association
+    from .tag import Tag
     from .user import User
 
 
@@ -45,6 +45,4 @@ class Post(Base):
         back_populates="post", cascade="all, delete-orphan", lazy="selectin"
     )
 
-    tags: Mapped[list[Tag]] = relationship(
-        secondary=post_tag_association, back_populates="posts"
-    )
+    tags: Mapped[list[Tag]] = relationship(secondary="post_tag", back_populates="posts")

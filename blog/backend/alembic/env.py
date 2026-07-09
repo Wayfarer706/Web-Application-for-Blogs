@@ -5,10 +5,17 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-import models as models  # type: ignore # noqa: F401
 from alembic import context
 from config import settings
 from database import Base
+from models.category import Category  # type: ignore # noqa: F401
+from models.comment import Comment  # type: ignore # noqa: F401
+from models.password_reset_token import PasswordResetToken  # type: ignore # noqa: F401
+from models.post import Post  # type: ignore # noqa: F401
+from models.tag import Tag, post_tag_association  # type: ignore # noqa: F401
+from models.user import User  # type: ignore # noqa: F401
+
+target_metadata = Base.metadata
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
