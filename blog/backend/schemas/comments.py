@@ -27,3 +27,11 @@ class CommentResponse(CommentBase):
     parent_id: int | None
     author: UserPublic
     replies: list[CommentResponse] = Field(default=[])
+
+
+class PaginatedCommentsResponse(BaseModel):
+    comments: list[CommentResponse]
+    total: int
+    skip: int
+    limit: int
+    has_more: bool

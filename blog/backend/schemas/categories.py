@@ -17,3 +17,11 @@ class CategoryResponse(CategoryBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+
+
+class PaginatedCategoriesResponse(BaseModel):
+    categories: list[CategoryResponse]
+    total: int
+    skip: int
+    limit: int
+    has_more: bool

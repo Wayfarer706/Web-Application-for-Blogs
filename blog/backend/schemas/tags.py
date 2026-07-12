@@ -17,3 +17,11 @@ class TagResponse(TagBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+
+
+class PaginatedTagsResponse(BaseModel):
+    tags: list[TagResponse]
+    total: int
+    skip: int
+    limit: int
+    has_more: bool

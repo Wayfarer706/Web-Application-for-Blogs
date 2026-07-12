@@ -10,7 +10,6 @@ from fastapi import (
 )
 from fastapi.security import OAuth2PasswordRequestForm
 
-import models as models
 from api.dependencies import get_user_service
 from auth import CurrentUser
 from schemas.auth import (

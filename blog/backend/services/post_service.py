@@ -1,17 +1,47 @@
 from fastapi import HTTPException, status
 
 from models.post import Post
+from models.tag import Tag
+from repositories.category_repository import CategoryRepository
 from repositories.post_repository import PostRepository
+from repositories.tag_repository import TagRepository
 from schemas.posts import PaginatedPostsResponse, PostCreate, PostResponse, PostUpdate
 
 
 class PostService:
-    def __init__(self, post_repo: PostRepository) -> None:
+    def __init__(
+        self,
+        post_repo: PostRepository,
+        category_repo: CategoryRepository,
+        tag_repo: TagRepository,
+    ) -> None:
         self.post_repo = post_repo
+        self.category_repo = category_repo
+        self.tag_repo = tag_repo
 
     async def create_post(self, post_data: PostCreate, user_id: int) -> Post:
+        category = await self.category_repo.get_by_id(post_data.category_id)
+
+        if not category:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Category not found"
+            )
+
+        tags: list[Tag] = []
+        if post_data.tag_ids:
+            tags = await self.tag_repo.get_by_ids(post_data.tag_ids)
+
+            if len(tags) != len(set(post_data.tag_ids)):
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND, detail="Tag not found"
+                )
+
         return await self.post_repo.create(
-            title=post_data.title, content=post_data.content, user_id=user_id
+            title=post_data.title,
+            content=post_data.content,
+            user_id=user_id,
+            category_id=post_data.category_id,
+            tags=tags,
         )
 
     async def get_post(self, post_id: int) -> Post:

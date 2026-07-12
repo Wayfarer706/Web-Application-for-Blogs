@@ -2,10 +2,11 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, status
 
-import models as models
-from api.dependencies import get_post_service
+from api.dependencies import get_comment_service, get_post_service
 from auth import CurrentUser
+from schemas.comments import PaginatedCommentsResponse
 from schemas.posts import PaginatedPostsResponse, PostCreate, PostResponse, PostUpdate
+from services.comment_service import CommentService
 from services.post_service import PostService
 
 router = APIRouter()
@@ -26,6 +27,16 @@ async def get_post(
     post_service: Annotated[PostService, Depends(get_post_service)],
 ):
     return await post_service.get_post(post_id)
+
+
+@router.get("/{post_id}/comments", response_model=PaginatedCommentsResponse)
+async def get_post_comments(
+    post_id: int,
+    comment_service: Annotated[CommentService, Depends(get_comment_service)],
+    skip: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=100)] = 10,
+):
+    return await comment_service.get_post_comments(post_id, skip, limit)
 
 
 @router.post(

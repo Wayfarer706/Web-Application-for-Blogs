@@ -6,18 +6,34 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from models.post import Post
+from models.tag import Tag
 
 
 class PostRepository:
     def __init__(self, db: AsyncSession) -> None:
         self.db = db
 
-    async def create(self, title: str, content: str, user_id: int) -> Post:
-        new_post = Post(title=title, content=content, user_id=user_id)
+    async def create(
+        self,
+        title: str,
+        content: str,
+        user_id: int,
+        category_id: int,
+        tags: list[Tag],
+    ) -> Post:
+        new_post = Post(
+            title=title,
+            content=content,
+            user_id=user_id,
+            category_id=category_id,
+            tags=tags,
+        )
 
         self.db.add(new_post)
         await self.db.commit()
-        await self.db.refresh(new_post, attribute_names=["author"])
+        await self.db.refresh(
+            new_post, attribute_names=["author", "comments", "tags", "category"]
+        )
 
         return new_post
 
